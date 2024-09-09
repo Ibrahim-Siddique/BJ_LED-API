@@ -8,6 +8,9 @@ class LEDController:
         self.auth_password = auth_password
         self.headers = {'Authorization': auth_password}
 
+        self.current_color = ""
+        self.lights_on = False
+
     def _send_request(self, endpoint, method='POST', json=None):
         url = f"{self.base_url}/{endpoint}"
         response = requests.request(
@@ -20,18 +23,31 @@ class LEDController:
 
     def power_on(self):
         """Turn on the LED lights."""
-        return self._send_request('power_on')
+        if self.lights_on:
+            return
+        
+        self._send_request('power_on')
+        self.lights_on = True
 
     def power_off(self):
         """Turn off the LED lights."""
-        return self._send_request('power_off')
+        if not self.lights_on:
+            return
+
+        self._send_request('power_off')
+        self.lights_on = False
 
     def set_color(self, hex_code):
         """Set the color of the LED lights."""
         if not self._is_valid_hex(hex_code):
             raise ValueError(
                 "Invalid hex code format. Must be #RRGGBB or #RGB.")
-        return self._send_request('set_color', json={'color': hex_code})
+        
+        if self.current_color == hex_code:
+            return
+        
+        self._send_request('set_color', json={'color': hex_code})
+        self.current_color = hex_code
 
     def _is_valid_hex(self, hex_code):
         """Check if the hex code is valid."""
