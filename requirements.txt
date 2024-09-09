@@ -1,3 +1,4 @@
 bleak
 Flask
 python-dotenv
+requirements.txt
